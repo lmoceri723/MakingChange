@@ -25,11 +25,12 @@ public class MakingChange {
         }
 
         // Call the recursive helper function
-        return findWays(target, coins, coins.length);
+        //return findWaysMemoization(target, coins, coins.length);
+        return findWaysTabulation(target, coins);
     }
 
     // Recursively finds the number of ways to make change given a target and a set of coins
-    private static long findWays(int target, int[] coins, int coinIndex) {
+    private static long findWaysMemoization(int target, int[] coins, int coinIndex) {
         // Base cases
         if (target == 0) {
             return 1;
@@ -47,10 +48,30 @@ public class MakingChange {
         // Create two recursive calls, one doing nothing and omitting the last coin
         // The other subtracting the last coin from the target and not omitting it
         // This processes all paths of the tree
-        results[target][coinIndex] = findWays(target - coins[coinIndex - 1], coins, coinIndex) +
-                findWays(target, coins, coinIndex - 1);
+        results[target][coinIndex] = findWaysMemoization(target - coins[coinIndex - 1], coins, coinIndex) +
+                findWaysMemoization(target, coins, coinIndex - 1);
 
         // Return the result
         return results[target][coinIndex];
     }
+
+    private static long findWaysTabulation(int target, int[] coins) {
+        // Initialize the tabulation array
+        long[] waysToMake = new long[target + 1];
+        waysToMake[0] = 1;
+
+        // Iterate over each coin
+        for (int coin : coins) {
+            // Look at every subsequent index of the array until the end
+            for (int j = 0; j <= target - coin; j++) {
+                // Add the number of ways to make change for the current index
+                // To the current index + the coin value
+                waysToMake[j + coin] += waysToMake[j];
+            }
+        }
+
+        // Return the number of ways to make change for the target
+        return waysToMake[target];
+    }
 }
+
